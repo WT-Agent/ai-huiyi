@@ -1,7 +1,17 @@
 <template>
   <div class="app-container">
-    <!-- 右上角常驻炫彩分享按钮 -->
-    <button class="floating-share-btn" @click="showShareGuide = true">
+    <!-- 顶部生成成功浮动 Toast -->
+    <transition name="fade">
+      <div v-if="showSuccessToast" class="top-success-toast">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>会议议程与讨论框架模板生成成功！</span>
+      </div>
+    </transition>
+
+    <!-- 右上角常驻分享按钮 -->
+    <button class="floating-share-btn no-print" @click="showShareGuide = true">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="share-icon">
         <circle cx="18" cy="5" r="3"></circle>
         <circle cx="6" cy="12" r="3"></circle>
@@ -14,17 +24,17 @@
 
     <header class="no-print">
       <h1>{{ appTitle }}</h1>
-      <p>Nomad-style 数据化开会框架 · 根据意图生成专业会议模板与议程</p>
+      <p>智能 AI 会议引擎 · 核心讨论议程与框架生成</p>
     </header>
 
     <!-- 活跃动态 -->
     <UserTicker class="no-print" />
 
-    <!-- 首页中心核心生成区 (Front-and-Center Generator) -->
+    <!-- 首页中心核心生成区 -->
     <main class="glass-card main-generator-card no-print">
       <div class="generator-header">
-        <h2>🎯 定制您今天的会议模板与框架</h2>
-        <p class="generator-sub">输入您的开会意图与目标，AI 为您定制分钟级议程、破局提问与分工规则</p>
+        <h2>定制您今天的会议模板与框架</h2>
+        <p class="generator-sub">输入您的开会意图与目标，AI 为您定制分钟级议程、讨论提问与决议分工规则</p>
       </div>
 
       <div class="divination-setup">
@@ -33,7 +43,7 @@
           <label class="selector-label">输入您的开会意图与核心讨论目标</label>
           <textarea 
             v-model="inquiryIntent" 
-            placeholder="例如：今天我们要开一个 Q3 季度产品延期与人员招聘对齐会，需要明确延期原因、确定新的上线节点并重新分配前端开发任务..."
+            placeholder="例如：今天我们要开一个季度季度产品延期与人员招聘对齐会，需要明确延期原因、确定新的上线节点并重新分配前端开发任务..."
             class="intent-textarea"
           ></textarea>
         </div>
@@ -53,7 +63,7 @@
           </div>
         </div>
 
-        <!-- 框架流派选择 (美化拉满) -->
+        <!-- 框架流派选择 -->
         <div class="selector-group">
           <label class="selector-label">选择开会框架流派</label>
           <select v-model="activeStyle" class="style-select">
@@ -73,18 +83,18 @@
           :disabled="!inquiryIntent.trim() || loading" 
           @click="handleGenerate"
         >
-          {{ loading ? '会议模板生成中...' : '🚀 生成专业会议模板与框架' }}
+          {{ loading ? '会议模板生成中...' : '生成专业会议模板与框架' }}
         </button>
 
-        <div v-if="errorMsg" class="error-text">
+        <div v-if="errorMsg" class="error-banner">
           {{ errorMsg }}
         </div>
       </div>
     </main>
 
-    <!-- 生成结果区与打印导出工具区 (Result & Export Section) -->
+    <!-- 生成结果区与打印导出工具区 -->
     <section v-if="currentTemplate" class="glass-card result-card printable-area">
-      <!-- 印章与归档区域 (仅非打印时显示) -->
+      <!-- 印章与归档区域 -->
       <div class="stamp-section no-print">
         <div class="stamp-canvas">
           <svg 
@@ -115,28 +125,34 @@
         </div>
       </div>
 
-      <!-- 操作与导出工具栏 (仅非打印时显示) -->
+      <!-- 操作与导出工具栏 -->
       <div class="result-toolbar no-print">
-        <span class="result-title-tag">📋 当前会议模板</span>
+        <div class="result-title-group">
+          <span class="result-title-tag">会议模板结果</span>
+          <span class="success-badge">生成成功</span>
+        </div>
         <div class="export-actions">
           <button class="export-btn print-btn" @click="printTemplate">
-            🖨️ 打印 / 导出 PDF
+            打印 / 导出 PDF
           </button>
           <button class="export-btn download-btn" @click="downloadTemplate">
-            📥 下载模板 (.md)
+            下载模板 (.md)
           </button>
           <button class="export-btn copy-btn" @click="copyText">
             {{ copied ? '已复制模板' : '复制全文' }}
+          </button>
+          <button class="export-btn highlight-btn" @click="showShareCard = true">
+            生成分享卡片
           </button>
         </div>
       </div>
 
       <!-- 五维权重与卡片即时评分区 -->
       <div class="comparison-dashboard no-print">
-        <h3 class="dashboard-title">📊 框架维度权重 (支持点击直接调分)</h3>
+        <h3 class="dashboard-title">框架维度权重 (支持微调评分)</h3>
         <div class="card-rating-interactive-row">
           <div v-for="metric in metricsList" :key="metric.key" class="metric-rating-box">
-            <span class="metric-rating-label">{{ metric.icon }} {{ metric.shortLabel }}</span>
+            <span class="metric-rating-label">{{ metric.shortLabel }}</span>
             <div class="metric-rating-controls">
               <button class="rating-btn" @click="adjustCardMetric(currentTemplate, metric.key, -1)">-</button>
               <span class="rating-num">{{ currentTemplate.scores[metric.key] }}</span>
@@ -153,15 +169,25 @@
           <p>生成日期: {{ currentTemplate.timestamp }} | 框架流派: {{ currentTemplate.styleLabel }}</p>
           <hr />
         </div>
-        <div class="markdown-body scroll-box">{{ cleanResponseText(currentTemplate.output) }}</div>
+        <!-- 骨架屏加载 -->
+        <div v-if="loading" class="skeleton">
+          <div class="skeleton-line" style="width: 80%"></div>
+          <div class="skeleton-line" style="width: 95%"></div>
+          <div class="skeleton-line" style="width: 60%"></div>
+          <div class="skeleton-line" style="width: 75%"></div>
+        </div>
+        <div v-else class="markdown-body scroll-box">{{ cleanResponseText(currentTemplate.output) }}</div>
       </div>
     </section>
+
+    <!-- 演示案例区组件 (模块三：30 条会议框架精选案例展示) -->
+    <DemoShowcase @use-sample="handleUseSample" />
 
     <!-- 首页下方：Nomad 热门会议模板库排行榜网格墙 (Nomad Template Gallery) -->
     <section class="nomad-gallery-section no-print">
       <div class="gallery-header glass-card">
         <div class="gallery-title-group">
-          <h2>🔥 Nomad 热门会议模板排行榜</h2>
+          <h2>Nomad 热门会议模板排行榜</h2>
           <p>浏览精选与历史高分开会框架，可直接在卡片上微调权重与评分</p>
         </div>
 
@@ -181,7 +207,7 @@
           <input 
             type="text" 
             v-model="searchQuery" 
-            placeholder="🔍 搜索模板意图..." 
+            placeholder="搜索模板意图..." 
             class="nomad-search-input"
           />
         </div>
@@ -197,11 +223,11 @@
           <!-- 头部与 Score 徽章 -->
           <div class="n-card-header">
             <div class="n-card-title-group">
-              <span class="n-card-category">📋 {{ card.topic }}</span>
+              <span class="n-card-category">主题: {{ card.topic }}</span>
               <span class="n-card-date">{{ card.timestamp }}</span>
             </div>
             <div class="n-card-score-badge" :class="getScoreClass(card.averageScore)">
-              🚀 Score: {{ card.averageScore.toFixed(1) }}
+              Score: {{ card.averageScore.toFixed(1) }}
             </div>
           </div>
 
@@ -212,7 +238,7 @@
               :key="metric.key" 
               class="metric-pill-interactive"
             >
-              <span class="pill-icon">{{ metric.icon }}{{ metric.shortLabel }}</span>
+              <span class="pill-icon">{{ metric.shortLabel }}</span>
               <div class="pill-score-controls">
                 <button class="score-step-btn" @click.stop="adjustCardMetric(card, metric.key, -1)">-</button>
                 <span class="pill-val">{{ card.scores[metric.key] }}</span>
@@ -229,7 +255,7 @@
           <!-- 操作栏 -->
           <div class="n-card-footer">
             <button class="card-use-btn" @click="loadCardToGenerator(card)">
-              ⚡ 载入此框架
+              载入此框架
             </button>
             <button class="card-view-btn" @click="openCardDetail(card)">
               查看 / 打印
@@ -270,22 +296,23 @@
       </div>
     </div>
 
-    <!-- 联系我们弹窗 -->
+    <!-- 联系我们弹窗 (自适应高度 + weixin.png & dingtalk.png 展示) -->
     <div v-if="showContact" class="modal-overlay no-print" @click.self="showContact = false">
-      <div class="modal-content" style="max-width: 420px;">
+      <div class="modal-content contact-modal-content">
         <h3>Contact Us</h3>
-        <div class="modal-text-content">
-          <p>如果您在使用过程中遇到任何问题，或有合作意向，可以通过微信或钉钉联系我们：</p>
-          <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
-            <div style="text-align: center;">
-              <img :src="weixinImg" alt="微信二维码" style="width: 130px; height: 130px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
-              <div style="font-size: 0.75rem; margin-top: 0.25rem; color: var(--text-secondary);">微信</div>
+        <div class="modal-text-content contact-card-body">
+          <p>如果您在使用过程中遇到任何问题，或有合作意向，可以通过以下方式联系我们：</p>
+          <div class="contact-qr-container">
+            <div class="contact-qr-card">
+              <img :src="weixinImg" alt="微信联系" class="contact-qr-img" />
+              <span class="contact-qr-label">微信联系</span>
             </div>
-            <div style="text-align: center;">
-              <img :src="dingtalkImg" alt="钉钉二维码" style="width: 130px; height: 130px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
-              <div style="font-size: 0.75rem; margin-top: 0.25rem; color: var(--text-secondary);">钉钉</div>
+            <div class="contact-qr-card">
+              <img :src="dingtalkImg" alt="钉钉交流" class="contact-qr-img" />
+              <span class="contact-qr-label">钉钉交流</span>
             </div>
           </div>
+          <p class="contact-email">反馈邮箱: <span style="color: var(--primary-color);">us@wuxian.xyz</span></p>
         </div>
         <button class="modal-btn" @click="showContact = false">关闭</button>
       </div>
@@ -296,6 +323,14 @@
       :visible="showFission" 
       :wechat-id="wechatId"
       @unlocked="handleUnlocked"
+    />
+
+    <!-- 分享卡片弹窗 (模块二扩展) -->
+    <ShareCardModal
+      :visible="showShareCard"
+      :content="currentTemplate ? currentTemplate.output : ''"
+      :wechat-id="wechatId"
+      @close="showShareCard = false"
     />
 
     <!-- 分享引导浮层 -->
@@ -314,6 +349,8 @@
 import { ref, computed, onMounted } from 'vue';
 import UserTicker from './components/UserTicker.vue';
 import FissionModal from './components/FissionModal.vue';
+import DemoShowcase from './components/DemoShowcase.vue';
+import ShareCardModal from './components/ShareCardModal.vue';
 import appConfig from './config.json';
 import weixinImg from '../asset/weixin.png';
 import dingtalkImg from '../asset/dingtalk.png';
@@ -326,21 +363,23 @@ const inquiryIntent = ref('');
 const loading = ref(false);
 const errorMsg = ref('');
 const copied = ref(false);
+const showSuccessToast = ref(false);
 const showFission = ref(false);
 const showPrivacy = ref(false);
 const showTerms = ref(false);
 const showContact = ref(false);
 const showShareGuide = ref(false);
+const showShareCard = ref(false);
 
 const activeFilter = ref('all');
 const searchQuery = ref('');
 
 const quickTags = [
-  { label: '🚀 新项目启动会', text: '针对新项目启动，需要明确项目目标、里程碑节点、各部门接口人分工与风险防控。' },
-  { label: '📊 季度 OKR 复盘会', text: '针对季度 OKR 完成度进行复盘，讨论未达标项归因、关键结果对齐与下季度资源申请。' },
-  { label: '💰 跨部门预算对齐会', text: '跨部门讨论 Q4 营销与研发预算分配，解决超支争议，确定审批流与资金投放优先级。' },
-  { label: '🎯 绩效考核与晋升面谈', text: '对团队成员进行半年度绩效评估与晋升答辩对齐，给予结构化反馈与下一步提升计划。' },
-  { label: '💡 创投路演预演会', text: '针对创业项目 VC 融资路演预演，严查商业模式漏洞、财务预测真实性与 Q&A 防挑剔提问。' }
+  { label: '新项目启动会', text: '针对新项目启动，需要明确项目目标、里程碑节点、各部门接口人分工与风险防控。' },
+  { label: '季度 OKR 复盘会', text: '针对季度 OKR 完成度进行复盘，讨论未达标项归因、关键结果对齐与下季度资源申请。' },
+  { label: '跨部门预算对齐会', text: '跨部门讨论营销与研发预算分配，解决超支争议，确定审批流与资金投放优先级。' },
+  { label: '绩效考核与晋升面谈', text: '对团队成员进行半年度绩效评估与晋升答辩对齐，给予结构化反馈与下一步提升计划。' },
+  { label: '创投路演预演会', text: '针对创业项目 VC 融资路演预演，严查商业模式漏洞、财务预测真实性与 Q&A 提问。' }
 ];
 
 const styleOptions = [
@@ -354,18 +393,18 @@ const styleOptions = [
 const activeStyle = ref(styleOptions[0].value);
 
 const filterOptions = [
-  { key: 'all', label: '全部模板 (All)' },
-  { key: 'top', label: '最高推荐 🚀' },
-  { key: 'action', label: '高效议程 ⏱️' },
-  { key: 'recent', label: '近期定制 🔥' }
+  { key: 'all', label: '全部模板' },
+  { key: 'top', label: '最高推荐' },
+  { key: 'action', label: '高效议程' },
+  { key: 'recent', label: '近期定制' }
 ];
 
 const metricsList = [
-  { key: 'struct', label: '结构化程度', shortLabel: '结构', icon: '⚡' },
-  { key: 'focus', label: '目标聚焦度', shortLabel: '聚焦', icon: '🎯' },
-  { key: 'time', label: '时间规划力', shortLabel: '时间', icon: '⏱️' },
-  { key: 'role', label: '角色分工明确度', shortLabel: '分工', icon: '👥' },
-  { key: 'risk', label: '风险预案严密度', shortLabel: '预案', icon: '🛡️' }
+  { key: 'struct', label: '结构化程度', shortLabel: '结构', icon: '' },
+  { key: 'focus', label: '目标聚焦度', shortLabel: '聚焦', icon: '' },
+  { key: 'time', label: '时间规划力', shortLabel: '时间', icon: '' },
+  { key: 'role', label: '角色分工明确度', shortLabel: '分工', icon: '' },
+  { key: 'risk', label: '风险预案严密度', shortLabel: '预案', icon: '' }
 ] as const;
 
 type MetricKey = typeof metricsList[number]['key'];
@@ -471,16 +510,11 @@ const applyQuickTag = (text: string) => {
   inquiryIntent.value = text;
 };
 
-// 在 Card 内部调整权重并交互打分
 const adjustCardMetric = (card: NomadCard | null, key: MetricKey, delta: number) => {
   if (!card) return;
   const newScore = Math.min(5, Math.max(1, card.scores[key] + delta));
   card.scores[key] = newScore;
-  
-  // 重新计算平均得分
   card.averageScore = (card.scores.struct + card.scores.focus + card.scores.time + card.scores.role + card.scores.risk) / 5;
-  
-  // 自动写回持久化
   const userOnly = cardsList.value.filter(c => !c.isPreset);
   saveHistory(userOnly);
 };
@@ -490,7 +524,6 @@ const loadHistory = () => {
     const raw = localStorage.getItem('huiyi_template_records');
     const userCards: NomadCard[] = raw ? JSON.parse(raw) : [];
     cardsList.value = [...userCards, ...presetCards];
-    
     const rawCount = localStorage.getItem('huiyi_total_templates');
     totalTemplates.value = rawCount ? parseInt(rawCount, 10) : 18;
   } catch (e) {
@@ -499,37 +532,36 @@ const loadHistory = () => {
 };
 
 const saveHistory = (userCards: NomadCard[]) => {
-  localStorage.setItem('huiyi_template_records', JSON.stringify(userCards));
+  try {
+    localStorage.setItem('huiyi_template_records', JSON.stringify(userCards));
+    const raw = localStorage.getItem('huiyi_template_records');
+    const parsed = raw ? JSON.parse(raw) : [];
+    cardsList.value = [...parsed, ...presetCards];
+  } catch (e) {
+    console.error('Save history failed:', e);
+  }
 };
 
 const filteredCards = computed(() => {
-  let list = [...cardsList.value];
-
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase();
-    list = list.filter(c => c.topic.toLowerCase().includes(q) || c.output.toLowerCase().includes(q));
-  }
+  let list = cardsList.value;
 
   if (activeFilter.value === 'top') {
-    list.sort((a, b) => b.averageScore - a.averageScore);
+    list = list.filter(c => c.averageScore >= 4.5);
   } else if (activeFilter.value === 'action') {
     list = list.filter(c => c.scores.time >= 4);
   } else if (activeFilter.value === 'recent') {
-    list.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+    list = list.filter(c => !c.isPreset);
+  }
+
+  if (searchQuery.value.trim()) {
+    list = list.filter(c => 
+      c.topic.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      c.input.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
   }
 
   return list;
 });
-
-const loadCardToGenerator = (card: NomadCard) => {
-  inquiryIntent.value = card.input || card.topic;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-const openCardDetail = (card: NomadCard) => {
-  currentTemplate.value = card;
-  window.scrollTo({ top: 300, behavior: 'smooth' });
-};
 
 const getScoreClass = (score: number) => {
   if (score >= 4.5) return 'score-high';
@@ -539,7 +571,39 @@ const getScoreClass = (score: number) => {
 
 const cleanExcerpt = (text: string) => {
   const cleaned = cleanResponseText(text);
-  return cleaned.length > 85 ? cleaned.slice(0, 85) + '...' : cleaned;
+  return cleaned.length > 90 ? cleaned.slice(0, 90) + '...' : cleaned;
+};
+
+const loadCardToGenerator = (card: NomadCard) => {
+  inquiryIntent.value = card.input;
+  const matched = styleOptions.find(o => o.label === card.styleLabel);
+  if (matched) {
+    activeStyle.value = matched.value;
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const openCardDetail = (card: NomadCard) => {
+  currentTemplate.value = card;
+  const resultEl = document.querySelector('.printable-area');
+  if (resultEl) {
+    resultEl.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
+const apiEndpoint = import.meta.env.DEV
+  ? '/api/local/generate'
+  : (import.meta.env.VITE_API_ENDPOINT || 'https://api.wuxian.xyz/api/v1/generate');
+
+const isLimitReached = computed(() => {
+  const uses = parseInt(localStorage.getItem('free_uses') || '0', 10);
+  const shared = localStorage.getItem('shared_fission') === 'true';
+  return uses >= 3 && !shared;
+});
+
+const handleUnlocked = () => {
+  showFission.value = false;
+  handleGenerate();
 };
 
 const parseAIScores = (text: string) => {
@@ -550,14 +614,14 @@ const parseAIScores = (text: string) => {
     scoreStr.split(',').forEach(item => {
       const [key, val] = item.split(':');
       if (key && val) {
-        scores[key.trim()] = Math.min(5, Math.max(1, parseInt(val.trim(), 10) || 4));
+        scores[key.trim()] = Math.min(5, Math.max(1, parseInt(val.trim(), 10) || 3));
       }
     });
     return {
-      struct: scores.struct || 4,
-      focus: scores.focus || 4,
-      time: scores.time || 4,
-      role: scores.role || 4,
+      struct: scores.struct || 3,
+      focus: scores.focus || 3,
+      time: scores.time || 3,
+      role: scores.role || 3,
       risk: scores.risk || 3
     };
   }
@@ -565,48 +629,16 @@ const parseAIScores = (text: string) => {
 };
 
 const cleanResponseText = (text: string) => {
-  return text.replace(/\[HUIYI_SCORES\].*?\[\/HUIYI_SCORES\]/g, '').trim();
+  if (!text) return '';
+  return text.replace(/\[HUIYI_SCORES\][\s\S]*?\[\/HUIYI_SCORES\]/gi, '').trim();
 };
 
-const printTemplate = () => {
-  stampApproved();
-  window.print();
+const triggerSuccessToast = () => {
+  showSuccessToast.value = true;
+  setTimeout(() => {
+    showSuccessToast.value = false;
+  }, 3000);
 };
-
-const downloadTemplate = () => {
-  if (!currentTemplate.value) return;
-  stampApproved();
-  
-  const content = `# ${currentTemplate.value.topic}\n\n生成时间: ${currentTemplate.value.timestamp}\n流派: ${currentTemplate.value.styleLabel}\n\n---\n\n${cleanResponseText(currentTemplate.value.output)}`;
-  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', `${currentTemplate.value.topic.replace(/\s+/g, '_')}_会议模板.md`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
-onMounted(() => {
-  loadHistory();
-});
-
-const handleShareClose = () => {
-  showShareGuide.value = false;
-  localStorage.setItem('shared_fission', 'true');
-};
-
-const isLimitReached = computed(() => {
-  const uses = parseInt(localStorage.getItem('free_uses') || '0', 10);
-  const shared = localStorage.getItem('shared_fission') === 'true';
-  return uses >= 3 && !shared;
-});
-
-const apiEndpoint = import.meta.env.DEV
-  ? '/api/local/generate'
-  : (import.meta.env.VITE_API_ENDPOINT || 'https://api.wuxian.xyz/api/v1/generate');
 
 const handleGenerate = async () => {
   if (isLimitReached.value) {
@@ -617,15 +649,21 @@ const handleGenerate = async () => {
   loading.value = true;
   errorMsg.value = '';
 
+  const matched = styleOptions.find(o => o.value === activeStyle.value);
+  const styleLabel = matched ? matched.label : '会议框架';
+
   try {
+    const fullPrompt = `【会议意图与目标】：${inquiryIntent.value}。\n【框架流派】：${activeStyle.value}\n${promptTopic.value}`;
+
     const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({
         taskType: 'text',
-        prompt: `起卦主题：${promptTopic.value}。开会意图与目标：${inquiryIntent.value}。流派倾向：${activeStyle.value}`,
+        prompt: fullPrompt,
         style: activeStyle.value
       })
     });
@@ -634,53 +672,66 @@ const handleGenerate = async () => {
     if (data.error) {
       errorMsg.value = data.error;
     } else {
-      const parsedScores = parseAIScores(data.result) || { struct: 4, focus: 4, time: 4, role: 4, risk: 3 };
-      const avg = (parsedScores.struct + parsedScores.focus + parsedScores.time + parsedScores.role + parsedScores.risk) / 5;
+      const generatedScores = parseAIScores(data.result) || { struct: 4, focus: 4, time: 4, role: 4, risk: 4 };
+      const avg = (generatedScores.struct + generatedScores.focus + generatedScores.time + generatedScores.role + generatedScores.risk) / 5;
 
-      const matched = styleOptions.find(o => o.value === activeStyle.value);
-      const styleLabel = matched ? matched.label : '框架流派';
-
-      const topicTitle = inquiryIntent.value.length > 20 ? inquiryIntent.value.slice(0, 20) + '...议程模板' : inquiryIntent.value + '议程模板';
-
-      const newCard: NomadCard = {
+      const newRecord: NomadCard = {
         id: Date.now().toString(),
-        timestamp: new Date().toLocaleString(),
-        topic: topicTitle,
+        timestamp: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        topic: inquiryIntent.value.length > 25 ? inquiryIntent.value.slice(0, 25) + '...' : inquiryIntent.value,
         input: inquiryIntent.value,
         styleLabel,
-        scores: parsedScores,
+        scores: generatedScores,
         averageScore: avg,
         output: data.result
       };
 
-      currentTemplate.value = newCard;
-      cardsList.value.unshift(newCard);
-
       const userOnly = cardsList.value.filter(c => !c.isPreset);
+      userOnly.unshift(newRecord);
       saveHistory(userOnly);
+
+      currentTemplate.value = newRecord;
+      triggerSuccessToast();
 
       const currentUses = parseInt(localStorage.getItem('free_uses') || '0', 10);
       localStorage.setItem('free_uses', (currentUses + 1).toString());
-
-      stampApproved();
     }
   } catch (err: any) {
-    errorMsg.value = '请求接口失败，请检查网络或本地代理服务。';
+    errorMsg.value = '请求接口失败，请检查网络或本地开发服务器代理。';
   } finally {
     loading.value = false;
   }
 };
 
-const handleUnlocked = () => {
-  showFission.value = false;
-  handleGenerate();
+const handleShareClose = () => {
+  showShareGuide.value = false;
+  localStorage.setItem('shared_fission', 'true');
+};
+
+const printTemplate = () => {
+  window.print();
+};
+
+const downloadTemplate = () => {
+  if (!currentTemplate.value) return;
+  try {
+    const text = cleanResponseText(currentTemplate.value.output);
+    const blob = new Blob([text], { type: 'text/markdown;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `${currentTemplate.value.topic.replace(/\s+/g, '_')}_会议框架模板.md`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (e) {
+    console.error('Download failed:', e);
+  }
 };
 
 const copyText = async () => {
   if (!currentTemplate.value) return;
   try {
-    const cleanedText = cleanResponseText(currentTemplate.value.output);
-    await navigator.clipboard.writeText(cleanedText);
+    await navigator.clipboard.writeText(cleanResponseText(currentTemplate.value.output));
     copied.value = true;
     setTimeout(() => {
       copied.value = false;
@@ -689,517 +740,13 @@ const copyText = async () => {
     errorMsg.value = '复制失败，请手动选择复制。';
   }
 };
+
+const handleUseSample = (sampleTopic: string) => {
+  inquiryIntent.value = sampleTopic;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+onMounted(() => {
+  loadHistory();
+});
 </script>
-
-<style scoped>
-/* 开会框架流派下拉框 - 现代玻璃态修优 */
-.style-select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  color: #ffffff;
-  font-family: inherit;
-  font-size: 0.92rem;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 16px;
-  transition: all 0.3s ease;
-}
-
-.style-select:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
-}
-
-.style-select option {
-  background: #110e24;
-  color: #ffffff;
-  padding: 0.75rem;
-}
-
-/* 首页核心生成区 */
-.main-generator-card {
-  padding: 1.75rem;
-  margin-bottom: 2rem;
-  text-align: left;
-  border-radius: 20px;
-}
-
-.generator-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.generator-header h2 {
-  font-size: 1.3rem;
-  margin: 0 0 0.4rem 0;
-  color: var(--text-primary);
-}
-
-.generator-sub {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.intent-textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 0.85rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 0.92rem;
-  line-height: 1.5;
-  outline: none;
-  resize: vertical;
-  transition: border-color 0.3s ease;
-}
-
-.intent-textarea:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
-}
-
-.quick-tags-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.quick-tag-btn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary);
-  padding: 0.35rem 0.75rem;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.quick-tag-btn:hover {
-  background: rgba(168, 85, 247, 0.15);
-  color: var(--primary-color);
-  border-color: rgba(168, 85, 247, 0.3);
-}
-
-.main-generate-btn {
-  font-size: 1.05rem;
-  padding: 0.85rem 1.5rem;
-  margin-top: 1rem;
-  border-radius: 12px;
-}
-
-/* 导出工具栏 */
-.result-card {
-  padding: 1.75rem;
-  margin-bottom: 2.5rem;
-  text-align: left;
-  border-radius: 20px;
-}
-
-.result-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.result-title-tag {
-  font-size: 1.15rem;
-  font-weight: bold;
-  color: var(--primary-color);
-}
-
-.export-actions {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.export-btn {
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.print-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.download-btn {
-  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.copy-btn {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.export-btn:hover {
-  transform: translateY(-2px);
-}
-
-/* Card 交互评分控件与五维打分 */
-.card-rating-interactive-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.metric-rating-box {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 0.4rem 0.65rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.8rem;
-}
-
-.metric-rating-label {
-  color: var(--text-primary);
-}
-
-.metric-rating-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.rating-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: white;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.rating-btn:hover {
-  background: var(--primary-color);
-}
-
-.rating-num {
-  color: #3b82f6;
-  font-weight: bold;
-  min-width: 12px;
-  text-align: center;
-}
-
-/* 打印与文档展示区 */
-.template-document {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.print-only-header {
-  display: none;
-}
-
-/* Nomad 卡片网格墙与 Card 内部打分 */
-.nomad-gallery-section {
-  text-align: left;
-  margin-top: 2rem;
-}
-
-.gallery-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.gallery-title-group h2 {
-  font-size: 1.2rem;
-  margin: 0 0 0.3rem 0;
-  color: var(--text-primary);
-}
-
-.gallery-title-group p {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.gallery-filter-row {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.filter-tabs {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.filter-pill {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary);
-  padding: 0.35rem 0.75rem;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.filter-pill.active {
-  background: var(--primary-gradient);
-  color: white;
-  border-color: transparent;
-}
-
-.nomad-search-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 0.35rem 0.85rem;
-  color: var(--text-primary);
-  font-size: 0.82rem;
-  outline: none;
-}
-
-.nomad-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 1.25rem;
-}
-
-.nomad-card {
-  padding: 1.25rem;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  text-align: left;
-  transition: all 0.3s ease;
-}
-
-.nomad-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(168, 85, 247, 0.3);
-}
-
-.n-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.n-card-category {
-  font-size: 1.05rem;
-  font-weight: bold;
-  color: var(--text-primary);
-}
-
-.n-card-date {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.n-card-score-badge {
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
-
-.score-high { background: rgba(16, 185, 129, 0.18); color: #10b981; }
-.score-mid { background: rgba(245, 158, 11, 0.18); color: #f59e0b; }
-
-.n-card-metrics-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.metric-pill-interactive {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 0.2rem 0.45rem;
-  border-radius: 6px;
-  font-size: 0.72rem;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.pill-score-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.score-step-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  color: var(--text-primary);
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-}
-
-.score-step-btn:hover {
-  background: var(--primary-color);
-  color: white;
-}
-
-.pill-val { color: var(--primary-color); font-weight: bold; }
-
-.n-card-excerpt {
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-}
-
-.n-card-footer {
-  display: flex;
-  justify-content: space-between;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 0.6rem;
-}
-
-.card-use-btn {
-  background: rgba(168, 85, 247, 0.15);
-  color: var(--primary-color);
-  border: none;
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.card-view-btn {
-  background: none;
-  color: var(--text-secondary);
-  border: none;
-  font-size: 0.78rem;
-  cursor: pointer;
-}
-
-.card-view-btn:hover {
-  color: var(--text-primary);
-}
-
-/* 印章 */
-.stamp-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  margin-bottom: 1.25rem;
-}
-
-.stamp-canvas { position: relative; width: 120px; height: 120px; }
-.stamp-svg { width: 100%; height: 100%; cursor: pointer; }
-.stamp-svg.stamping { transform: scale(0.9) translateY(4px); }
-
-.floating-merit {
-  position: absolute;
-  left: 50%;
-  top: 40%;
-  font-size: 0.95rem;
-  font-weight: bold;
-  color: #3b82f6;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-/* 专用的打印 CSS 规则 (@media print) */
-@media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-  }
-
-  .no-print, .floating-share-btn, header, footer, .stamp-section, .result-toolbar, .comparison-dashboard, .nomad-gallery-section {
-    display: none !important;
-  }
-
-  .app-container {
-    padding: 0 !important;
-    max-width: 100% !important;
-  }
-
-  .result-card, .template-document {
-    background: #ffffff !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: #000000 !important;
-    padding: 0 !important;
-  }
-
-  .print-only-header {
-    display: block !important;
-    margin-bottom: 1.5rem;
-  }
-
-  .print-only-header h1 {
-    font-size: 1.8rem;
-    color: #000000;
-  }
-
-  .markdown-body {
-    color: #000000 !important;
-    font-size: 11pt;
-    line-height: 1.6;
-  }
-}
-</style>
