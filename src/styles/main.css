@@ -1034,3 +1034,501 @@ textarea:focus {
   font-size: 0.82rem;
   color: var(--text-secondary);
 }
+
+/* 会议模板生成器核心面板与输入样式 */
+.main-generator-card {
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.generator-header {
+  margin-bottom: 1.5rem;
+}
+
+.generator-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.generator-sub {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.intent-textarea {
+  width: 100%;
+  height: 120px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.intent-textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+.quick-tags-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.quick-tag-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  color: var(--text-secondary);
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-tag-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.main-generate-btn {
+  background: var(--primary-gradient);
+  border: none;
+  font-weight: 700;
+  padding: 0.9rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  transition: all 0.2s ease;
+}
+
+.main-generate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
+/* 结果卡片内部工具栏与动作 */
+.result-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.result-title-tag {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.export-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.export-btn {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.print-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.download-btn {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Card 交互评分控件与五维打分 */
+.card-rating-interactive-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.metric-rating-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.4rem 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.metric-rating-label {
+  color: var(--text-primary);
+}
+
+.metric-rating-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rating-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.rating-btn:hover {
+  background: var(--primary-color);
+}
+
+.rating-num {
+  color: #3b82f6;
+  font-weight: bold;
+  min-width: 12px;
+  text-align: center;
+}
+
+/* 打印与文档展示区 */
+.template-document {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.print-only-header {
+  display: none;
+}
+
+/* Nomad 卡片网格墙与 Card 内部打分 */
+.nomad-gallery-section {
+  text-align: left;
+  margin-top: 2rem;
+}
+
+.gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.gallery-title-group h2 {
+  font-size: 1.2rem;
+  margin: 0 0 0.3rem 0;
+  color: var(--text-primary);
+}
+
+.gallery-title-group p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.gallery-filter-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.filter-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  padding: 0.35rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.filter-pill.active {
+  background: var(--primary-gradient);
+  color: white;
+  border-color: transparent;
+}
+
+.nomad-search-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0.35rem 0.85rem;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.nomad-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.nomad-card {
+  padding: 1.25rem;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.nomad-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.n-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.n-card-category {
+  font-size: 1.02rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.n-card-date {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.n-card-score-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.score-high { background: rgba(16, 185, 129, 0.18); color: #10b981; }
+.score-mid { background: rgba(245, 158, 11, 0.18); color: #f59e0b; }
+.score-low { background: rgba(239, 68, 68, 0.18); color: #ef4444; }
+
+.n-card-metrics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.metric-pill-interactive {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pill-score-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.score-step-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--text-primary);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.score-step-btn:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.pill-val { color: var(--primary-color); font-weight: bold; }
+
+.n-card-style-tag {
+  font-size: 0.75rem;
+  color: #c084fc;
+  background: rgba(192, 132, 252, 0.12);
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 0.4rem;
+}
+
+.n-card-excerpt {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.n-card-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 0.6rem;
+  margin-top: auto;
+}
+
+.card-use-btn {
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--primary-color);
+  border: none;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-use-btn:hover {
+  background: var(--primary-gradient);
+  color: #ffffff;
+}
+
+.card-view-btn {
+  background: none;
+  color: var(--text-secondary);
+  border: none;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.card-view-btn:hover {
+  color: var(--text-primary);
+}
+
+/* 印章 */
+.stamp-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+}
+
+.stamp-canvas { position: relative; width: 120px; height: 120px; }
+.stamp-svg { width: 100%; height: 100%; cursor: pointer; transition: transform 0.1s ease; }
+.stamp-svg.stamping { transform: scale(0.9) translateY(4px); }
+
+.floating-merit {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #3b82f6;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* 专用的打印 CSS 规则 (@media print) */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .no-print, .floating-share-btn, header, footer, .stamp-section, .result-toolbar, .comparison-dashboard, .nomad-gallery-section {
+    display: none !important;
+  }
+
+  .app-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .result-card, .template-document {
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    padding: 0 !important;
+  }
+
+  .print-only-header {
+    display: block !important;
+    margin-bottom: 1.5rem;
+  }
+
+  .print-only-header h1 {
+    font-size: 1.8rem;
+    color: #000000;
+  }
+
+  .markdown-body {
+    color: #000000 !important;
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+}
+
