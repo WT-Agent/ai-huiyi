@@ -53,53 +53,7 @@
           </div>
         </div>
 
-        <!-- 五维框架滑块 -->
-        <div class="selector-group">
-          <label class="selector-label">请滑动评估期望的会议框架侧重</label>
-          <div class="score-sliders">
-            <div class="slider-group-item">
-              <div class="slider-header">
-                <span class="slider-title">⚡ 结构化程度 (Structure)</span>
-                <span class="slider-value">{{ userScores.struct }} / 5</span>
-              </div>
-              <input type="range" min="1" max="5" step="1" v-model.number="userScores.struct" class="range-slider" />
-            </div>
-
-            <div class="slider-group-item">
-              <div class="slider-header">
-                <span class="slider-title">🎯 目标聚焦度 (Goal Focus)</span>
-                <span class="slider-value">{{ userScores.focus }} / 5</span>
-              </div>
-              <input type="range" min="1" max="5" step="1" v-model.number="userScores.focus" class="range-slider" />
-            </div>
-
-            <div class="slider-group-item">
-              <div class="slider-header">
-                <span class="slider-title">⏱️ 时间规划力 (Timeline)</span>
-                <span class="slider-value">{{ userScores.time }} / 5</span>
-              </div>
-              <input type="range" min="1" max="5" step="1" v-model.number="userScores.time" class="range-slider" />
-            </div>
-
-            <div class="slider-group-item">
-              <div class="slider-header">
-                <span class="slider-title">👥 角色分工明确度 (Role)</span>
-                <span class="slider-value">{{ userScores.role }} / 5</span>
-              </div>
-              <input type="range" min="1" max="5" step="1" v-model.number="userScores.role" class="range-slider" />
-            </div>
-
-            <div class="slider-group-item">
-              <div class="slider-header">
-                <span class="slider-title">🛡️ 风险预案严密度 (Risk Prep)</span>
-                <span class="slider-value">{{ userScores.risk }} / 5</span>
-              </div>
-              <input type="range" min="1" max="5" step="1" v-model.number="userScores.risk" class="range-slider" />
-            </div>
-          </div>
-        </div>
-
-        <!-- 框架流派选择 -->
+        <!-- 框架流派选择 (美化拉满) -->
         <div class="selector-group">
           <label class="selector-label">选择开会框架流派</label>
           <select v-model="activeStyle" class="style-select">
@@ -177,26 +131,22 @@
         </div>
       </div>
 
-      <!-- 五维对比看板 (仅非打印时显示) -->
-      <div v-if="aiScores" class="comparison-dashboard no-print">
-        <h3 class="dashboard-title">📊 框架指标分析 (期望 vs AI评估)</h3>
-        <div class="comparison-grid">
-          <div v-for="metric in metricsList" :key="metric.key" class="comparison-row">
-            <div class="metric-info">
-              <span class="metric-label">{{ metric.icon }} {{ metric.label }}</span>
-              <span class="metric-scores-text">
-                期望: <strong style="color: var(--primary-color)">{{ userScores[metric.key] }}</strong> | 
-                AI基准: <strong style="color: var(--accent-color)">{{ aiScores[metric.key] }}</strong>
-              </span>
-            </div>
-            <div class="bar-bg">
-              <div class="bar-fill user-fill" :style="{ width: aiScores[metric.key] * 20 + '%' }"></div>
+      <!-- 五维权重与卡片即时评分区 -->
+      <div class="comparison-dashboard no-print">
+        <h3 class="dashboard-title">📊 框架维度权重 (支持点击直接调分)</h3>
+        <div class="card-rating-interactive-row">
+          <div v-for="metric in metricsList" :key="metric.key" class="metric-rating-box">
+            <span class="metric-rating-label">{{ metric.icon }} {{ metric.shortLabel }}</span>
+            <div class="metric-rating-controls">
+              <button class="rating-btn" @click="adjustCardMetric(currentTemplate, metric.key, -1)">-</button>
+              <span class="rating-num">{{ currentTemplate.scores[metric.key] }}</span>
+              <button class="rating-btn" @click="adjustCardMetric(currentTemplate, metric.key, 1)">+</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 模板正文 (打印与页面共享展示区) -->
+      <!-- 模板正文 -->
       <div class="template-document">
         <div class="print-only-header">
           <h1>{{ currentTemplate.topic }} - 会议议程与讨论框架</h1>
@@ -212,7 +162,7 @@
       <div class="gallery-header glass-card">
         <div class="gallery-title-group">
           <h2>🔥 Nomad 热门会议模板排行榜</h2>
-          <p>浏览精选与历史高分开会框架，点击一键载入定制</p>
+          <p>浏览精选与历史高分开会框架，可直接在卡片上微调权重与评分</p>
         </div>
 
         <div class="gallery-filter-row">
@@ -237,7 +187,7 @@
         </div>
       </div>
 
-      <!-- 卡片网格 -->
+      <!-- 卡片网格墙 -->
       <div class="nomad-card-grid">
         <div 
           v-for="card in filteredCards" 
@@ -255,13 +205,20 @@
             </div>
           </div>
 
-          <!-- 5 维胶囊 Pill -->
+          <!-- 5 维胶囊 Pill 与 Card 内部评分组件 -->
           <div class="n-card-metrics-grid">
-            <div class="metric-pill"><span class="pill-icon">⚡结构</span><span class="pill-val">{{ card.scores.struct }}</span></div>
-            <div class="metric-pill"><span class="pill-icon">🎯聚焦</span><span class="pill-val">{{ card.scores.focus }}</span></div>
-            <div class="metric-pill"><span class="pill-icon">⏱️时间</span><span class="pill-val">{{ card.scores.time }}</span></div>
-            <div class="metric-pill"><span class="pill-icon">👥分工</span><span class="pill-val">{{ card.scores.role }}</span></div>
-            <div class="metric-pill"><span class="pill-icon">🛡️预案</span><span class="pill-val">{{ card.scores.risk }}</span></div>
+            <div 
+              v-for="metric in metricsList" 
+              :key="metric.key" 
+              class="metric-pill-interactive"
+            >
+              <span class="pill-icon">{{ metric.icon }}{{ metric.shortLabel }}</span>
+              <div class="pill-score-controls">
+                <button class="score-step-btn" @click.stop="adjustCardMetric(card, metric.key, -1)">-</button>
+                <span class="pill-val">{{ card.scores[metric.key] }}</span>
+                <button class="score-step-btn" @click.stop="adjustCardMetric(card, metric.key, 1)">+</button>
+              </div>
+            </div>
           </div>
 
           <div class="n-card-body">
@@ -294,7 +251,7 @@
       <div class="modal-content">
         <h3>Privacy Policy</h3>
         <div class="modal-text-content modal-scroll-area">
-          <p>我们非常重视您的隐私。您在本应用中输入的开会意图、讨论主题以及指标设定等数据，均仅用于实时大模型会议模板生成，我们不在服务器端持久记录您的内容。</p>
+          <p>我们非常重视您的隐私。您在本应用中输入的开会意图与讨论主题等数据，均仅用于实时大模型会议模板生成，我们不在服务器端持久记录您的内容。</p>
           <p>为了在您的浏览器本地保留“Approved 模板归档计数”和您的 Nomad 模板卡片历史，应用会使用浏览器的本地存储（localStorage）保存相应状态。</p>
         </div>
         <button class="modal-btn" @click="showPrivacy = false">关闭</button>
@@ -378,16 +335,6 @@ const showShareGuide = ref(false);
 const activeFilter = ref('all');
 const searchQuery = ref('');
 
-const userScores = ref({
-  struct: 4,
-  focus: 5,
-  time: 4,
-  role: 4,
-  risk: 3
-});
-
-const aiScores = ref<{ struct: number; focus: number; time: number; role: number; risk: number; } | null>(null);
-
 const quickTags = [
   { label: '🚀 新项目启动会', text: '针对新项目启动，需要明确项目目标、里程碑节点、各部门接口人分工与风险防控。' },
   { label: '📊 季度 OKR 复盘会', text: '针对季度 OKR 完成度进行复盘，讨论未达标项归因、关键结果对齐与下季度资源申请。' },
@@ -414,12 +361,14 @@ const filterOptions = [
 ];
 
 const metricsList = [
-  { key: 'struct', label: '结构化程度 (Structure)', icon: '⚡' },
-  { key: 'focus', label: '目标聚焦度 (Goal Focus)', icon: '🎯' },
-  { key: 'time', label: '时间规划力 (Timeline)', icon: '⏱️' },
-  { key: 'role', label: '角色分工明确度 (Role)', icon: '👥' },
-  { key: 'risk', label: '风险预案严密度 (Risk Prep)', icon: '🛡️' }
+  { key: 'struct', label: '结构化程度', shortLabel: '结构', icon: '⚡' },
+  { key: 'focus', label: '目标聚焦度', shortLabel: '聚焦', icon: '🎯' },
+  { key: 'time', label: '时间规划力', shortLabel: '时间', icon: '⏱️' },
+  { key: 'role', label: '角色分工明确度', shortLabel: '分工', icon: '👥' },
+  { key: 'risk', label: '风险预案严密度', shortLabel: '预案', icon: '🛡️' }
 ] as const;
+
+type MetricKey = typeof metricsList[number]['key'];
 
 interface NomadCard {
   id: string;
@@ -441,7 +390,7 @@ const presetCards: NomadCard[] = [
     input: '针对Q3产品延期与研发人力不足，制定对齐议程。',
     styleLabel: '大厂高效 OKR 框架',
     scores: { struct: 5, focus: 5, time: 4, role: 4, risk: 4 },
-    averageScore: 4.8,
+    averageScore: 4.4,
     isPreset: true,
     output: `📌 **【1. 会议目标与基调定义】**\n明确 Q3 延期真实归因，在 45 分钟内锁定新的上线节点与前端人力支援表决方案。\n\n⏱️ **【2. 分钟级议程与时间分配表】**\n| 时间段 | 议题环节 | 主讲/引导人 | 预期产出 |\n|---|---|---|---|\n| 00-05 min | 破冰与延期现状通报 | 产品负责人 | 确认延期 5 天的具体模块列表 |\n| 05-25 min | 架构瓶颈攻坚与人力调配 | 研发架构师 | 达成前端支援 2 人的表决共识 |\n| 25-40 min | 新里程碑排期与交付物确认 | 项目经理 | 输出精确到日的排期甘特图 |\n| 40-45 min | 责任人确认与总结收尾 | 会议主持人 | 锁定表决签名 |\n\n💬 **【3. 议题引导提问与讨论框架】**\n- 提问 1: 如果不增加人力，仅裁剪非核心功能，能否按原定日期上线？\n- 提问 2: 微服务重构带来的风险，是否有灰度发布的降级预案？\n\n🗳️ **【4. 决议表决机制与分工规则】**\n采用技术负责人否决制与多数表决制，所有 Action Items 当场指定唯一责任人。\n\n⚠️ **【5. 常见讨论坑点与防跑题指南】**\n防范相互推诿，规定发言必须围绕“解决方案与交付节点”，禁止无建设性的抱怨。\n\n[HUIYI_SCORES]struct:5,focus:5,time:4,role:4,risk:4[/HUIYI_SCORES]`
   },
@@ -522,6 +471,20 @@ const applyQuickTag = (text: string) => {
   inquiryIntent.value = text;
 };
 
+// 在 Card 内部调整权重并交互打分
+const adjustCardMetric = (card: NomadCard | null, key: MetricKey, delta: number) => {
+  if (!card) return;
+  const newScore = Math.min(5, Math.max(1, card.scores[key] + delta));
+  card.scores[key] = newScore;
+  
+  // 重新计算平均得分
+  card.averageScore = (card.scores.struct + card.scores.focus + card.scores.time + card.scores.role + card.scores.risk) / 5;
+  
+  // 自动写回持久化
+  const userOnly = cardsList.value.filter(c => !c.isPreset);
+  saveHistory(userOnly);
+};
+
 const loadHistory = () => {
   try {
     const raw = localStorage.getItem('huiyi_template_records');
@@ -560,13 +523,11 @@ const filteredCards = computed(() => {
 
 const loadCardToGenerator = (card: NomadCard) => {
   inquiryIntent.value = card.input || card.topic;
-  userScores.value = { ...card.scores };
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const openCardDetail = (card: NomadCard) => {
   currentTemplate.value = card;
-  aiScores.value = { ...card.scores };
   window.scrollTo({ top: 300, behavior: 'smooth' });
 };
 
@@ -664,7 +625,7 @@ const handleGenerate = async () => {
       },
       body: JSON.stringify({
         taskType: 'text',
-        prompt: `起卦主题：${promptTopic.value}。开会意图与目标：${inquiryIntent.value}。期望框架指标：结构 ${userScores.value.struct}分，聚焦 ${userScores.value.focus}分，时间 ${userScores.value.time}分，分工 ${userScores.value.role}分，预案 ${userScores.value.risk}分。流派倾向：${activeStyle.value}`,
+        prompt: `起卦主题：${promptTopic.value}。开会意图与目标：${inquiryIntent.value}。流派倾向：${activeStyle.value}`,
         style: activeStyle.value
       })
     });
@@ -673,7 +634,7 @@ const handleGenerate = async () => {
     if (data.error) {
       errorMsg.value = data.error;
     } else {
-      const parsedScores = parseAIScores(data.result) || { ...userScores.value };
+      const parsedScores = parseAIScores(data.result) || { struct: 4, focus: 4, time: 4, role: 4, risk: 3 };
       const avg = (parsedScores.struct + parsedScores.focus + parsedScores.time + parsedScores.role + parsedScores.risk) / 5;
 
       const matched = styleOptions.find(o => o.value === activeStyle.value);
@@ -693,7 +654,6 @@ const handleGenerate = async () => {
       };
 
       currentTemplate.value = newCard;
-      aiScores.value = parsedScores;
       cardsList.value.unshift(newCard);
 
       const userOnly = cardsList.value.filter(c => !c.isPreset);
@@ -732,6 +692,39 @@ const copyText = async () => {
 </script>
 
 <style scoped>
+/* 开会框架流派下拉框 - 现代玻璃态修优 */
+.style-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.92rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.style-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+}
+
+.style-select option {
+  background: #110e24;
+  color: #ffffff;
+  padding: 0.75rem;
+}
+
 /* 首页核心生成区 */
 .main-generator-card {
   padding: 1.75rem;
@@ -872,6 +865,61 @@ const copyText = async () => {
   transform: translateY(-2px);
 }
 
+/* Card 交互评分控件与五维打分 */
+.card-rating-interactive-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.metric-rating-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.4rem 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.metric-rating-label {
+  color: var(--text-primary);
+}
+
+.metric-rating-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rating-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.rating-btn:hover {
+  background: var(--primary-color);
+}
+
+.rating-num {
+  color: #3b82f6;
+  font-weight: bold;
+  min-width: 12px;
+  text-align: center;
+}
+
 /* 打印与文档展示区 */
 .template-document {
   background: rgba(255, 255, 255, 0.02);
@@ -884,56 +932,7 @@ const copyText = async () => {
   display: none;
 }
 
-/* 评分滑块与看版 */
-.score-sliders {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  padding: 1.25rem;
-  border-radius: 12px;
-}
-
-.slider-group-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.slider-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.slider-value {
-  color: #3b82f6;
-  font-weight: bold;
-}
-
-.range-slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  outline: none;
-  cursor: pointer;
-}
-
-.range-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #3b82f6;
-  cursor: pointer;
-}
-
-/* Nomad 卡片网格墙 */
+/* Nomad 卡片网格墙与 Card 内部打分 */
 .nomad-gallery-section {
   text-align: left;
   margin-top: 2rem;
@@ -1053,13 +1052,43 @@ const copyText = async () => {
   gap: 0.35rem;
 }
 
-.metric-pill {
+.metric-pill-interactive {
   background: rgba(255, 255, 255, 0.04);
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
   font-size: 0.72rem;
   display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pill-score-controls {
+  display: flex;
+  align-items: center;
   gap: 0.25rem;
+}
+
+.score-step-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--text-primary);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.score-step-btn:hover {
+  background: var(--primary-color);
+  color: white;
 }
 
 .pill-val { color: var(--primary-color); font-weight: bold; }
