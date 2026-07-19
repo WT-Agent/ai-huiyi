@@ -417,3 +417,54 @@ textarea:focus {
   padding-right: 0.5rem;
 }
 
+/* 右上角常驻悬浮分享按钮 - 炫彩高亮版 */
+.floating-share-btn {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.95rem;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  color: #ffffff !important;
+  font-size: 0.82rem;
+  font-weight: bold;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+  text-decoration: none !important;
+}
+
+.floating-share-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.floating-share-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.share-icon {
+  width: 15px;
+  height: 15px;
+  stroke: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .floating-share-btn {
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+

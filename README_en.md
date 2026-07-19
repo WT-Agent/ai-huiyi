@@ -1,17 +1,18 @@
-# NetTeng Infinite AI Meeting Summary & Action Items Generator (Nomad Card Grid Edition)
+# NetTeng Infinite AI Meeting Template & Agenda Framework Generator
 
 ## Project Introduction
 
-**NetTeng Infinite AI Meeting Summary & Action Items Generator** is an interactive productivity micro-application built directly on the core architectural style of nomads.com (Nomad List)—the **Infinite Card Grid & Ranking Gallery**. Built on Vue 3 + Vite + Vanilla CSS, users can explore a rich front-page grid of meeting cards featuring 5-dimensional metric pills (Efficiency, Action Clarity, Alignment, Time Control, and Risk Index) along with overall Score badges. Clicking any card expands a detailed report modal containing full Markdown minutes and Action Items tables, accompanied by a metallic Web Audio Approved sign-off stamp.
+**NetTeng Infinite AI Meeting Template & Agenda Framework Generator** is an interactive productivity micro-application designed to generate customized meeting agendas, discussion frameworks, and decision-making rules based on user meeting intent. Built on Vue 3 + Vite + Vanilla CSS, the intent input box, quick intent tags, and 5-dimensional framework sliders are placed directly on the home page hero section. Upon generating a template, users can print it directly (or export as PDF via window.print()), download it as a `.md` file, or explore the Nomad List style template gallery grid below.
 
 ### Key Features
-- **Nomad List Infinite Card Grid**: Front-page card gallery and leaderboard with multi-metric filter pills (Top Score, Action-Packed, Recent) and quick search.
-- **5-Dimensional Metric Pills & Score Badges**: Each card displays score pills for Efficiency, Clarity, Alignment, Time, and Risk alongside score badges.
-- **Approved Sign-Off Stamp**: Local sound synthesis using the Web Audio API (metallic corporate stamp click). Clicking the stamp increments the Approved count and triggers a floating "Approved +1" animation.
-- **Multi-Style Generation & Detail Expansion**: Supports 5 narrative styles (Big-Tech OKR, 9-Figure Roundtable, Agile Standup, Formal Minutes, Brainstorming). Generated cards insert into the top of the grid in real-time.
-- **Floating Share Button**: A sleek glassmorphism share button at the top-right corner to invoke WeChat moments sharing guidance.
+- **Front-and-Center Intent Generator**: Intent input text area, quick intent tags (Project Kick-off, OKR Review, Budget Alignment, Performance Interview, VC Pitch Practice), and 5-dimensional framework sliders placed on the home page.
+- **5-Dimensional Metric Sliders**: Interactive 1-to-5 star sliders for Structure, Goal Focus, Timeline Rigor, Role Clarity, and Risk Preparation.
+- **One-Click Print & PDF Export**: Customized `@media print` CSS rules allowing users to print or export high-definition PDF meeting templates.
+- **Markdown Template Download**: One-click download of generated meeting templates in `.md` format.
+- **Approved Sign-Off Stamp**: Local sound synthesis using the Web Audio API (metallic corporate stamp click). Clicking the stamp increments the Approved count and triggers a floating "Template Approved +1" animation.
+- **Nomad List Template Gallery & Leaderboard**: Front-page card gallery featuring metric pills, score badges, quick filtering, and one-click "Load Template" functionality.
+- **Floating Share Button**: A sleek glassmorphism purple-pink gradient share button at the top-right corner to invoke WeChat moments sharing guidance.
 - **Side-by-Side QR Codes**: Parallel WeChat and Alipay payment codes in the donation section, and WeChat and DingTalk codes in the Contact Us modal.
-- **Adaptive Modal Views**: Terms and privacy modals support vertical scrolling with max-height limits, while QR code modals adjust height automatically to prevent nested scrollbars.
 
 ## Quick Start
 
